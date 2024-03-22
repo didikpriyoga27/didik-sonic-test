@@ -21,6 +21,7 @@ export default function useFetch<A, R>(fetchFn: FetchFn<A>) {
           baseURL: Config.BASE_URL,
           isShowError: baseConfig.method === 'GET' ? false : true,
           headers: {
+            Authorization: `Bearer ${Config.ACCESS_TOKEN}`,
             'Content-Type': 'application/json',
           },
           ...baseConfig,

@@ -1,6 +1,7 @@
 import React, {useCallback, useMemo} from 'react';
 import {
   ActivityIndicator,
+  RefreshControl,
   SectionList,
   SectionListData,
   TouchableOpacity,
@@ -13,7 +14,7 @@ import colors from '../../shared/utils/colors';
 import useQueryProjects from '../hooks/useQueryProjects';
 
 const MainSection = () => {
-  const {data, isLoading} = useQueryProjects();
+  const {data, isLoading, isRefetching, refetch} = useQueryProjects();
 
   const sectionListData:
     | SectionListData<SectionListItem, SectionListHeader>[]
@@ -33,7 +34,7 @@ const MainSection = () => {
               ?.filter(item => item.section_id === section.id)
               ?.sort((a, b) => a.child_order - b.child_order);
             return {
-              id: project.id,
+              id: section.id,
               title: section.name,
               data: itemInSection?.map(item => {
                 return {
@@ -48,13 +49,13 @@ const MainSection = () => {
   }, [data?.items, data?.projects, data?.sections]);
 
   const renderSectionHeader = useCallback(
-    ({section, index}: {section: SectionListHeader; index: number}) => {
+    ({section}: {section: SectionListHeader}) => {
       return (
         <View
           key={section.id}
-          className={`sections-center flex-row justify-between border-gray-200 p-4 dark:border-gray-600 ${
-            !index ? 'border-y' : 'border-b'
-          }`}>
+          className={
+            'sections-center flex-row justify-between border-b border-gray-200 p-4 dark:border-gray-600'
+          }>
           <Text>{section.title}</Text>
         </View>
       );
@@ -70,7 +71,7 @@ const MainSection = () => {
           'space-y-4 border-b border-gray-200 p-4 pl-8 dark:border-gray-600'
         }>
         <Text>{item.title}</Text>
-        <View className="space-y-4">
+        <View className="space-y-4 border-t border-gray-200 pt-4 dark:border-gray-600">
           {item.data.map(i => {
             const contentUrlIndex = i.content.indexOf('(https://');
             const isUrl = contentUrlIndex > -1;
@@ -95,6 +96,10 @@ const MainSection = () => {
     );
   }, []);
 
+  const refreshControl = (
+    <RefreshControl refreshing={isRefetching} onRefresh={refetch} />
+  );
+
   if (isLoading || !sectionListData) {
     return (
       <ActivityIndicator
@@ -111,7 +116,7 @@ const MainSection = () => {
       {/* @ts-ignore */}
       <SectionList
         sections={sectionListData}
-        {...{renderItem, renderSectionHeader}}
+        {...{renderItem, renderSectionHeader, refreshControl}}
       />
     </View>
   );

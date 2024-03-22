@@ -18,15 +18,3 @@ Reactotron?.setAsyncStorageHandler?.(AsyncStorage)
     overlay: false,
   })
   .connect();
-
-const yeOldeConsoleLog = console.log;
-
-console.log = (...args: any[]) => {
-  yeOldeConsoleLog(...args);
-
-  Reactotron.display({
-    name: 'CONSOLE.LOG',
-    value: args.length === 1 ? args[0] : args,
-    preview: JSON.stringify(args),
-  });
-};

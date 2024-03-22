@@ -4,6 +4,7 @@ type Item = {
   id: number;
   project_id: number;
   section_id: number;
+  description: string | null;
 };
 
 type Project = {
@@ -37,10 +38,12 @@ type User = {
 
 type SectionListItem = {
   id: number;
+  projectId: number;
   title: string;
   data: {
     id: number;
     content: string;
+    description: string | null;
   }[];
 };
 type SectionListHeader = {

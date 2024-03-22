@@ -19,11 +19,12 @@ const TextInput: FC<Props> = props => {
   return (
     <>
       <RNTextInput
-        className={
-          'h-12 flex-1 rounded border border-border px-4 font-poppins_500 text-black dark:text-white'
-        }
+        className={`${
+          restProps.multiline ? 'h-20' : 'h-12'
+        } rounded border border-border px-4 font-poppins_400 text-xs text-black dark:text-white`}
         style={[Boolean(leftComponent) && {paddingLeft: 40}]}
         placeholderTextColor={'#ACAEB8'}
+        textAlignVertical={'top'}
         {...restProps}
       />
       {Boolean(leftComponent) && (

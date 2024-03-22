@@ -14,7 +14,12 @@ import View from '../../shared/components/View';
 import colors from '../../shared/utils/colors';
 import useQueryProjects from '../hooks/useQueryProjects';
 
-const MainSection = () => {
+type Props = {
+  setIsVisible: (v: boolean) => void;
+  setProjectAndSectionIds: (projectId: number, sectionId: number) => void;
+};
+
+const MainSection = ({setIsVisible, setProjectAndSectionIds}: Props) => {
   const {data, isLoading, isRefetching, refetch} = useQueryProjects();
 
   const [sectionId, setSectionId] = useState<number | null>();
@@ -38,11 +43,13 @@ const MainSection = () => {
               ?.sort((a, b) => a.child_order - b.child_order);
             return {
               id: section.id,
+              projectId: project.id,
               title: section.name,
               data: itemInSection?.map(item => {
                 return {
                   id: item.id,
                   content: item.content,
+                  description: item.description,
                 };
               }),
             };
@@ -57,9 +64,9 @@ const MainSection = () => {
         <View
           key={section.id}
           className={
-            'flex-row items-center justify-between border-b border-gray-200 p-4 dark:border-gray-600'
+            'flex-row items-center justify-between border-b border-gray-200 p-4 font-poppins_600 dark:border-gray-600'
           }>
-          <Text>{section.title}</Text>
+          <Text className="font-poppins_600">{section.title}</Text>
         </View>
       );
     },
@@ -82,7 +89,12 @@ const MainSection = () => {
               <View className="rounded-full bg-gray-200 px-4 py-1 dark:bg-gray-700">
                 <Text className="text-xs">{item.data.length + ' items'}</Text>
               </View>
-              <TouchableOpacity className="h-6 w-6">
+              <TouchableOpacity
+                onPress={() => {
+                  setProjectAndSectionIds(item.projectId, item.id);
+                  setIsVisible(true);
+                }}
+                className="h-6 w-6">
                 <PlusIcon color={colors.primary} />
               </TouchableOpacity>
             </View>
@@ -102,14 +114,21 @@ const MainSection = () => {
                     )
                   : '';
                 return (
-                  <TouchableOpacity
-                    disabled={!isUrl}
-                    onPress={() => InAppBrowser.open(contentUrl)}>
-                    <Text
-                      className={`pl-4 ${isUrl && 'text-primary underline'}`}>
-                      {contentTitle}
-                    </Text>
-                  </TouchableOpacity>
+                  <View>
+                    <TouchableOpacity
+                      disabled={!isUrl}
+                      onPress={() => InAppBrowser.open(contentUrl)}>
+                      <Text
+                        className={`pl-4 ${isUrl && 'text-primary underline'}`}>
+                        {contentTitle}
+                      </Text>
+                    </TouchableOpacity>
+                    {i.description && (
+                      <Text className="pl-4 text-[10px] text-grey">
+                        {i.description}
+                      </Text>
+                    )}
+                  </View>
                 );
               })}
             </View>
@@ -117,7 +136,7 @@ const MainSection = () => {
         </View>
       );
     },
-    [sectionId],
+    [sectionId, setIsVisible, setProjectAndSectionIds],
   );
 
   const refreshControl = (

@@ -7,6 +7,7 @@ type Response = {
   user: User;
   sections: Section[];
   items: Item[];
+  sync_token: string;
 };
 
 export default function useQueryProjects() {

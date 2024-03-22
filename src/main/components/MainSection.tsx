@@ -1,23 +1,54 @@
-import React, {useCallback} from 'react';
-import {SectionList} from 'react-native';
+import React, {useCallback, useMemo} from 'react';
+import {
+  ActivityIndicator,
+  SectionList,
+  SectionListData,
+  TouchableOpacity,
+} from 'react-native';
+import InAppBrowser from 'react-native-inappbrowser-reborn';
 
 import Text from '../../shared/components/Text';
 import View from '../../shared/components/View';
+import colors from '../../shared/utils/colors';
+import useQueryProjects from '../hooks/useQueryProjects';
 
-type Props = {
-  data: Project[];
-  sectionListData: any;
-};
+const MainSection = () => {
+  const {data, isLoading} = useQueryProjects();
 
-const MainSection = ({sectionListData}: Props) => {
+  const sectionListData:
+    | SectionListData<SectionListItem, SectionListHeader>[]
+    | undefined = useMemo(() => {
+    return data?.projects
+      ?.filter(project => !project.inbox_project)
+      ?.sort((a, b) => a.child_order - b.child_order)
+      ?.map(project => {
+        const sectionInProject = data?.sections
+          ?.filter(section => section.project_id === project.id)
+          ?.sort((a, b) => a.section_order - b.section_order);
+        return {
+          id: project.id,
+          title: project?.name,
+          data: sectionInProject?.map(section => {
+            const itemInSection = data?.items
+              ?.filter(item => item.section_id === section.id)
+              ?.sort((a, b) => a.child_order - b.child_order);
+            return {
+              id: project.id,
+              title: section.name,
+              data: itemInSection?.map(item => {
+                return {
+                  id: item.id,
+                  content: item.content,
+                };
+              }),
+            };
+          }),
+        };
+      });
+  }, [data?.items, data?.projects, data?.sections]);
+
   const renderSectionHeader = useCallback(
-    ({
-      section,
-      index,
-    }: {
-      section: {id: number; title: string};
-      index: number;
-    }) => {
+    ({section, index}: {section: SectionListHeader; index: number}) => {
       return (
         <View
           key={section.id}
@@ -31,33 +62,48 @@ const MainSection = ({sectionListData}: Props) => {
     [],
   );
 
-  const renderItem = useCallback(
-    ({
-      item,
-    }: {
-      item: {id: number; title: string; data: {id: number; content: string}[]};
-    }) => {
-      return (
-        <View
-          key={item.id}
-          className={
-            'space-y-4 border-b border-gray-200 p-4 pl-8 dark:border-gray-600'
-          }>
-          <Text>{item.title}</Text>
-          <View className="space-y-4">
-            {item.data.map(i => {
-              const contentTitle =
-                i.content.indexOf('(https://') > -1
-                  ? i.content.substring(0, i.content.indexOf('(https://'))
-                  : i.content;
-              return <Text className="pl-4">{contentTitle}</Text>;
-            })}
-          </View>
+  const renderItem = useCallback(({item}: {item: SectionListItem}) => {
+    return (
+      <View
+        key={item.id}
+        className={
+          'space-y-4 border-b border-gray-200 p-4 pl-8 dark:border-gray-600'
+        }>
+        <Text>{item.title}</Text>
+        <View className="space-y-4">
+          {item.data.map(i => {
+            const contentUrlIndex = i.content.indexOf('(https://');
+            const isUrl = contentUrlIndex > -1;
+            const contentTitle = isUrl
+              ? i.content.substring(0, contentUrlIndex)
+              : i.content;
+            const contentUrl = isUrl
+              ? i.content.substring(contentUrlIndex + 1, i.content.length - 1)
+              : '';
+            return (
+              <TouchableOpacity
+                disabled={!isUrl}
+                onPress={() => InAppBrowser.open(contentUrl)}>
+                <Text className={`pl-4 ${isUrl && 'text-primary underline'}`}>
+                  {contentTitle}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
         </View>
-      );
-    },
-    [],
-  );
+      </View>
+    );
+  }, []);
+
+  if (isLoading || !sectionListData) {
+    return (
+      <ActivityIndicator
+        className="flex-1 items-center justify-center"
+        size={'large'}
+        color={colors.primary}
+      />
+    );
+  }
 
   return (
     <View className="flex-1">

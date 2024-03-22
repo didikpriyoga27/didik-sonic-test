@@ -34,3 +34,16 @@ type User = {
   fullname: string;
   email: string;
 };
+
+type SectionListItem = {
+  id: number;
+  title: string;
+  data: {
+    id: number;
+    content: string;
+  }[];
+};
+type SectionListHeader = {
+  id: number;
+  title: string;
+};

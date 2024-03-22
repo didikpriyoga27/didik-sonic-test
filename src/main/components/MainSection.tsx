@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 import InAppBrowser from 'react-native-inappbrowser-reborn';
 
+import PlusIcon from '../../shared/assets/svg/PlusIcon';
 import Text from '../../shared/components/Text';
 import View from '../../shared/components/View';
 import colors from '../../shared/utils/colors';
@@ -75,10 +76,15 @@ const MainSection = () => {
           }>
           <TouchableOpacity
             onPress={() => setSectionId(sectionId === item.id ? null : item.id)}
-            className="flex-row items-center justify-between">
-            <Text>{item.title}</Text>
-            <View className="rounded-full bg-gray-200 px-4 py-1 dark:bg-gray-700">
-              <Text className="text-xs">{item.data.length + ' items'}</Text>
+            className="flex-row items-center">
+            <Text className="flex-1">{item.title}</Text>
+            <View className="flex-row items-end space-x-4">
+              <View className="rounded-full bg-gray-200 px-4 py-1 dark:bg-gray-700">
+                <Text className="text-xs">{item.data.length + ' items'}</Text>
+              </View>
+              <TouchableOpacity className="h-6 w-6">
+                <PlusIcon color={colors.primary} />
+              </TouchableOpacity>
             </View>
           </TouchableOpacity>
           {sectionId === item.id && (

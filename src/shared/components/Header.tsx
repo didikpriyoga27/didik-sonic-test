@@ -32,7 +32,7 @@ const Header: FC<Props> = ({title, isWithBackButton = false}) => {
       }}>
       <View className={`flex-row items-center px-6 ${title ? 'h-12' : 'h-20'}`}>
         {title && (
-          <Text className="absolute left-0 right-0 flex-1 text-center font-poppins_500 text-base">
+          <Text className="absolute left-0 right-0 flex-1 text-center font-poppins_700 text-base">
             {title}
           </Text>
         )}

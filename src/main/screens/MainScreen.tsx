@@ -7,7 +7,7 @@ import MainSection from '../components/MainSection';
 const MainScreen = () => {
   return (
     <BaseLayout isWithPaddingBottom>
-      <Header title="Home" />
+      <Header title="Projects" />
       <MainSection />
     </BaseLayout>
   );

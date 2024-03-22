@@ -112,7 +112,6 @@ const MainSection = () => {
 
   return (
     <View className="flex-1">
-      <Text className="p-4 font-poppins_700 text-base">Projects</Text>
       {/* @ts-ignore */}
       <SectionList
         sections={sectionListData}

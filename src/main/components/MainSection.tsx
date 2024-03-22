@@ -1,4 +1,4 @@
-import React, {useCallback, useMemo} from 'react';
+import React, {useCallback, useMemo, useState} from 'react';
 import {
   ActivityIndicator,
   RefreshControl,
@@ -15,6 +15,8 @@ import useQueryProjects from '../hooks/useQueryProjects';
 
 const MainSection = () => {
   const {data, isLoading, isRefetching, refetch} = useQueryProjects();
+
+  const [sectionId, setSectionId] = useState<number | null>();
 
   const sectionListData:
     | SectionListData<SectionListItem, SectionListHeader>[]
@@ -49,12 +51,12 @@ const MainSection = () => {
   }, [data?.items, data?.projects, data?.sections]);
 
   const renderSectionHeader = useCallback(
-    ({section}: {section: SectionListHeader}) => {
+    ({section}: {section: SectionListItem}) => {
       return (
         <View
           key={section.id}
           className={
-            'sections-center flex-row justify-between border-b border-gray-200 p-4 dark:border-gray-600'
+            'flex-row items-center justify-between border-b border-gray-200 p-4 dark:border-gray-600'
           }>
           <Text>{section.title}</Text>
         </View>
@@ -63,38 +65,54 @@ const MainSection = () => {
     [],
   );
 
-  const renderItem = useCallback(({item}: {item: SectionListItem}) => {
-    return (
-      <View
-        key={item.id}
-        className={
-          'space-y-4 border-b border-gray-200 p-4 pl-8 dark:border-gray-600'
-        }>
-        <Text>{item.title}</Text>
-        <View className="space-y-4 border-t border-gray-200 pt-4 dark:border-gray-600">
-          {item.data.map(i => {
-            const contentUrlIndex = i.content.indexOf('(https://');
-            const isUrl = contentUrlIndex > -1;
-            const contentTitle = isUrl
-              ? i.content.substring(0, contentUrlIndex)
-              : i.content;
-            const contentUrl = isUrl
-              ? i.content.substring(contentUrlIndex + 1, i.content.length - 1)
-              : '';
-            return (
-              <TouchableOpacity
-                disabled={!isUrl}
-                onPress={() => InAppBrowser.open(contentUrl)}>
-                <Text className={`pl-4 ${isUrl && 'text-primary underline'}`}>
-                  {contentTitle}
-                </Text>
-              </TouchableOpacity>
-            );
-          })}
+  const renderItem = useCallback(
+    ({item}: {item: SectionListItem}) => {
+      return (
+        <View
+          key={item.id}
+          className={
+            'space-y-4 border-b border-gray-200 p-4 pl-8 dark:border-gray-600'
+          }>
+          <TouchableOpacity
+            onPress={() => setSectionId(sectionId === item.id ? null : item.id)}
+            className="flex-row items-center justify-between">
+            <Text>{item.title}</Text>
+            <View className="rounded-full bg-gray-200 px-4 py-1 dark:bg-gray-700">
+              <Text className="text-xs">{item.data.length + ' items'}</Text>
+            </View>
+          </TouchableOpacity>
+          {sectionId === item.id && (
+            <View className="space-y-4 border-t border-gray-200 pt-4 dark:border-gray-600">
+              {item.data.map(i => {
+                const contentUrlIndex = i.content.indexOf('(https://');
+                const isUrl = contentUrlIndex > -1;
+                const contentTitle = isUrl
+                  ? i.content.substring(0, contentUrlIndex)
+                  : i.content;
+                const contentUrl = isUrl
+                  ? i.content.substring(
+                      contentUrlIndex + 1,
+                      i.content.length - 1,
+                    )
+                  : '';
+                return (
+                  <TouchableOpacity
+                    disabled={!isUrl}
+                    onPress={() => InAppBrowser.open(contentUrl)}>
+                    <Text
+                      className={`pl-4 ${isUrl && 'text-primary underline'}`}>
+                      {contentTitle}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+          )}
         </View>
-      </View>
-    );
-  }, []);
+      );
+    },
+    [sectionId],
+  );
 
   const refreshControl = (
     <RefreshControl refreshing={isRefetching} onRefresh={refetch} />

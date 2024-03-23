@@ -1,11 +1,14 @@
 import React, {useEffect, useState} from 'react';
-import {Modal} from 'react-native';
+import {Modal, TouchableOpacity} from 'react-native';
 
+import CloseIcon from '../../shared/assets/svg/CloseIcon';
+import OutlinedButton from '../../shared/components/OutlinedButton';
 import PrimaryButton from '../../shared/components/PrimaryButton';
 import Text from '../../shared/components/Text';
 import TextInput from '../../shared/components/TextInput';
 import View from '../../shared/components/View';
 import useMutateAddTask from '../hooks/useMutateAddTask';
+import useMutateDeleteTask from '../hooks/useMutateDeleteTask';
 import useMutateUpdateTask from '../hooks/useMutateUpdateTask';
 
 type Props = {
@@ -32,8 +35,10 @@ const TaskModal = ({
   const [content, setContent] = useState('');
   const [description, setDescription] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+
   const {mutateAsync: mutateAddTask} = useMutateAddTask();
   const {mutateAsync: mutateUpdateTask} = useMutateUpdateTask();
+  const {mutateAsync: mutateDeleteTask} = useMutateDeleteTask();
 
   useEffect(() => {
     if (type === 'update') {
@@ -44,6 +49,13 @@ const TaskModal = ({
       setDescription('');
     }
   }, [defaultContent, defaultDescription, type]);
+
+  const handleReset = () => {
+    setContent('');
+    setDescription('');
+    setIsLoading(false);
+    setIsVisible(false);
+  };
 
   return (
     <Modal
@@ -56,7 +68,12 @@ const TaskModal = ({
       <View className="flex-1 justify-center bg-black p-4 opacity-25" />
       <View className="absolute bottom-40 left-4 right-4 top-40 justify-center rounded-md bg-transparent">
         <View className="space-y-4 rounded-md p-4">
-          <Text className="capitalize">{type} Task</Text>
+          <View className="flex-row items-center justify-between">
+            <Text className="capitalize">{type} Task</Text>
+            <TouchableOpacity className="h-8 w-8" onPress={() => handleReset()}>
+              <CloseIcon />
+            </TouchableOpacity>
+          </View>
           <TextInput
             value={content}
             onChangeText={setContent}
@@ -68,39 +85,41 @@ const TaskModal = ({
             placeholder="Task description"
             multiline
           />
-          <PrimaryButton
-            text="Submit"
-            isLoading={isLoading}
-            disabled={!content}
-            onPress={() => {
-              setIsLoading(true);
-              if (type === 'add') {
-                mutateAddTask({
-                  content,
-                  description,
-                  project_id,
-                  section_id,
-                }).then(() => {
-                  setContent('');
-                  setDescription('');
-                  setIsLoading(false);
-                  setIsVisible(false);
-                });
-              }
-              if (type === 'update') {
-                mutateUpdateTask({
-                  content,
-                  description,
-                  id: taskId,
-                }).then(() => {
-                  setContent('');
-                  setDescription('');
-                  setIsLoading(false);
-                  setIsVisible(false);
-                });
-              }
-            }}
-          />
+          <View className="flex-row items-center">
+            {type === 'update' && (
+              <OutlinedButton
+                text="Delete"
+                onPress={() => {
+                  mutateDeleteTask({id: taskId}).then(() => handleReset());
+                }}
+                className="mr-4 flex-1"
+              />
+            )}
+            <PrimaryButton
+              text="Submit"
+              isLoading={isLoading}
+              disabled={!content}
+              className="flex-1"
+              onPress={() => {
+                setIsLoading(true);
+                if (type === 'add') {
+                  mutateAddTask({
+                    content,
+                    description,
+                    project_id,
+                    section_id,
+                  }).then(() => handleReset());
+                }
+                if (type === 'update') {
+                  mutateUpdateTask({
+                    content,
+                    description,
+                    id: taskId,
+                  }).then(() => handleReset());
+                }
+              }}
+            />
+          </View>
         </View>
       </View>
     </Modal>

@@ -9,7 +9,7 @@ import OutlinedButton from '../../shared/components/OutlinedButton';
 import View from '../../shared/components/View';
 import {StackParamList} from '../../shared/navigation/types';
 import MainSection from '../components/MainSection';
-import AddTaskModal from '../modals/TaskModal';
+import TaskModal from '../modals/TaskModal';
 
 const MainScreen = () => {
   const {reset} = useNavigation<NavigationProp<StackParamList>>();
@@ -61,7 +61,7 @@ const MainScreen = () => {
           }}
         />
       </View>
-      <AddTaskModal
+      <TaskModal
         {...{
           isVisible,
           setIsVisible,

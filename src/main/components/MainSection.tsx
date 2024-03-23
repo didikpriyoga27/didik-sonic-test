@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 import InAppBrowser from 'react-native-inappbrowser-reborn';
 
+import ChevronRightIcon from '../../shared/assets/svg/ChevronRightIcon';
 import PlusIcon from '../../shared/assets/svg/PlusIcon';
 import Text from '../../shared/components/Text';
 import View from '../../shared/components/View';
@@ -17,9 +18,21 @@ import useQueryProjects from '../hooks/useQueryProjects';
 type Props = {
   setIsVisible: (v: boolean) => void;
   setProjectAndSectionIds: (projectId: number, sectionId: number) => void;
+  setTaskId: (taskId: number) => void;
+  setDefaultContentAndDescription: (
+    content: string,
+    description: string | null,
+  ) => void;
+  setModalType: (v: 'add' | 'update') => void;
 };
 
-const MainSection = ({setIsVisible, setProjectAndSectionIds}: Props) => {
+const MainSection = ({
+  setIsVisible,
+  setProjectAndSectionIds,
+  setTaskId,
+  setDefaultContentAndDescription,
+  setModalType,
+}: Props) => {
   const {data, isLoading, isRefetching, refetch} = useQueryProjects();
 
   const [sectionId, setSectionId] = useState<number | null>();
@@ -92,6 +105,7 @@ const MainSection = ({setIsVisible, setProjectAndSectionIds}: Props) => {
               <TouchableOpacity
                 onPress={() => {
                   setProjectAndSectionIds(item.projectId, item.id);
+                  setModalType('add');
                   setIsVisible(true);
                 }}
                 className="h-6 w-6">
@@ -114,12 +128,12 @@ const MainSection = ({setIsVisible, setProjectAndSectionIds}: Props) => {
                     )
                   : '';
                 return (
-                  <View>
+                  <View key={i.id}>
                     <TouchableOpacity
                       disabled={!isUrl}
                       onPress={() => InAppBrowser.open(contentUrl)}>
                       <Text
-                        className={`pl-4 ${isUrl && 'text-primary underline'}`}>
+                        className={`pr-4 ${isUrl && 'text-primary underline'}`}>
                         {contentTitle}
                       </Text>
                     </TouchableOpacity>
@@ -128,6 +142,19 @@ const MainSection = ({setIsVisible, setProjectAndSectionIds}: Props) => {
                         {i.description}
                       </Text>
                     )}
+                    <TouchableOpacity
+                      onPress={() => {
+                        setTaskId(i.id);
+                        setDefaultContentAndDescription(
+                          i.content,
+                          i.description,
+                        );
+                        setModalType('update');
+                        setIsVisible(true);
+                      }}
+                      className="absolute right-0 h-6 w-6 items-center justify-center rounded-full bg-gray-200 dark:bg-gray-600">
+                      <ChevronRightIcon />
+                    </TouchableOpacity>
                   </View>
                 );
               })}
@@ -136,7 +163,14 @@ const MainSection = ({setIsVisible, setProjectAndSectionIds}: Props) => {
         </View>
       );
     },
-    [sectionId, setIsVisible, setProjectAndSectionIds],
+    [
+      sectionId,
+      setDefaultContentAndDescription,
+      setIsVisible,
+      setModalType,
+      setProjectAndSectionIds,
+      setTaskId,
+    ],
   );
 
   const refreshControl = (

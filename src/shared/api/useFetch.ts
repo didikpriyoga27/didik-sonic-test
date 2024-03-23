@@ -2,6 +2,7 @@ import {AxiosResponse} from 'axios';
 import {useCallback} from 'react';
 import {Alert} from 'react-native';
 import Config from 'react-native-config';
+import EncryptedStorage from 'react-native-encrypted-storage';
 
 import fetch, {FetchConfig} from './fetch';
 
@@ -16,12 +17,13 @@ const waitForInteraction = () => {
 export default function useFetch<A, R>(fetchFn: FetchFn<A>) {
   const handleFetch = useCallback(
     async (args?: A) => {
+      const accessToken = await EncryptedStorage.getItem('accessToken');
       function polyfillFetchConfig(baseConfig: FetchConfig): FetchConfig {
         return {
           baseURL: Config.BASE_URL,
           isShowError: baseConfig.method === 'GET' ? false : true,
           headers: {
-            Authorization: `Bearer ${Config.ACCESS_TOKEN}`,
+            Authorization: `Bearer ${accessToken}`,
             'Content-Type': 'application/json',
           },
           ...baseConfig,

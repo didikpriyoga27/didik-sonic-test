@@ -17,7 +17,7 @@ const PrimaryButton: FC<Props> = ({
   leftComponent,
   text,
   className,
-  isLoading = true,
+  isLoading = false,
   ...props
 }) => {
   return (

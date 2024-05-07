@@ -20,7 +20,7 @@ export default function useFetch<A, R>(fetchFn: FetchFn<A>) {
       const accessToken = await EncryptedStorage.getItem('accessToken');
       function polyfillFetchConfig(baseConfig: FetchConfig): FetchConfig {
         return {
-          baseURL: Config.BASE_URL,
+          baseURL: Config.BASE_URL || '',
           isShowError: baseConfig.method === 'GET' ? false : true,
           headers: {
             Authorization: `Bearer ${accessToken}`,

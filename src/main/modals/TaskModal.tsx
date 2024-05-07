@@ -1,3 +1,4 @@
+import {useColorScheme} from 'nativewind';
 import React, {useEffect, useState} from 'react';
 import {Modal, TouchableOpacity} from 'react-native';
 
@@ -39,6 +40,9 @@ const TaskModal = ({
   const {mutateAsync: mutateAddTask} = useMutateAddTask();
   const {mutateAsync: mutateUpdateTask} = useMutateUpdateTask();
   const {mutateAsync: mutateDeleteTask} = useMutateDeleteTask();
+  const {colorScheme} = useColorScheme();
+
+  const isDark = colorScheme === 'dark';
 
   useEffect(() => {
     if (type === 'update') {
@@ -71,7 +75,7 @@ const TaskModal = ({
           <View className="flex-row items-center justify-between">
             <Text className="capitalize">{type} Task</Text>
             <TouchableOpacity className="h-8 w-8" onPress={() => handleReset()}>
-              <CloseIcon />
+              <CloseIcon color={isDark ? 'white' : 'black'} />
             </TouchableOpacity>
           </View>
           <TextInput
